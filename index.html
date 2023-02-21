@@ -1,0 +1,77 @@
+<html><head>
+<style>
+form{
+	border: 1px solid black;
+	padding: 1em;
+	margin: 1em;
+	display: inline-block;
+	text-align: right;
+}
+#notes{
+	height: 5em;
+	width: 300px;
+	margin: 5px;
+}
+input{
+	width: 300px;
+	padding: 5px;
+	margin: 5px;
+}
+#fr1,#fr2,#fr3{
+	width: 20px;
+	margin-right: 280px;
+}
+label{
+	vertical-align: middle;
+	display: inline-block;
+}
+h3{
+	text-align: center;
+}
+#sidebar{
+	float: left;
+	width: 400px;
+}
+</style>
+</head>
+<body>
+	<form>
+		<h3>Info for One Portion</h3>
+		<p>Portions are individually tagged. Multi-portion packages will have a tag for each portion.</p>
+		<label for="desc">Item</label>
+		<input type="text" id="desc" name="desc" required><br>
+		<label for="qty">Portion Size</label>
+		<input type="number" id="qty" name="qty" value=1><br>
+		<label for="lbs">Portion Weight (lbs)</label>
+		<input type="number" id="lbs" name="lbs"><br>
+		<label for="fr1">Chest Freezer</label>
+		<input type="radio" id="fr1" name="freezer" required><br>
+		<label for="fr2">Vertical Freezer</label>
+		<input type="radio" id="fr2" name="freezer" required><br>
+		<label for="fr3">Kitchen Freezer</label>
+		<input type="radio" id="fr3" name="freezer" required><br>
+		<label for="tag">RFID Tag</label>
+		<input type="number" id="tag" name="tag" required><br>
+		<textarea id="notes" name="notes">Add notes here...</textarea><br>
+		<label for="date">Freeze Date</label>
+		<input type="date" id="date" name="date"><br>
+		<input type="submit">
+	</form>
+	<div id="sidebar">
+	<ul>Errors
+		<li>Duplicate tag</li>
+		<li>Date is in the future</li>
+
+	</ul>
+	<ul>Data Validation
+		<li>Pre-fill default date with today</li>
+		<li>Standardize capitalization on item text</li>
+		<li>Remove default notes</li>
+		<li>Thaw date will be empty until item is removed</li>
+		<li>Pre-fill data with last submission to allow multiple tags to be scanned in a row</li>
+	</ul>
+	</div>
+
+
+
+</body></html>
