@@ -35,26 +35,26 @@ h3{
 </style>
 </head>
 <body>
-	<form>
+	<form method="post">
 		<h3>Info for One Portion</h3>
 		<p>Portions are individually tagged. Multi-portion packages will have a tag for each portion.</p>
-		<label for="desc">Item</label>
-		<input type="text" id="desc" name="desc" required><br>
+		<label for="name">Item</label>
+		<input type="text" id="name" name="name" required value={{name}}><br>
 		<label for="qty">Portion Size</label>
-		<input type="number" id="qty" name="qty" value=1><br>
+		<input type="number" id="qty" name="qty" value={{qty}}><br>
 		<label for="lbs">Portion Weight (lbs)</label>
-		<input type="number" id="lbs" name="lbs"><br>
+		<input type="number" id="lbs" name="lbs" value={{lbs}}><br>
 		<label for="fr1">Chest Freezer</label>
-		<input type="radio" id="fr1" name="freezer" required><br>
+		<input type="radio" id="fr1" name="freezer" required value={{fr1}}><br>
 		<label for="fr2">Vertical Freezer</label>
-		<input type="radio" id="fr2" name="freezer" required><br>
+		<input type="radio" id="fr2" name="freezer" required value={{fr2}}><br>
 		<label for="fr3">Kitchen Freezer</label>
-		<input type="radio" id="fr3" name="freezer" required><br>
+		<input type="radio" id="fr3" name="freezer" required value={{fr3}}><br>
 		<label for="tag">RFID Tag</label>
 		<input type="number" id="tag" name="tag" required><br>
-		<textarea id="notes" name="notes">Add notes here...</textarea><br>
-		<label for="date">Freeze Date</label>
-		<input type="date" id="date" name="date"><br>
+		<textarea id="notes" name="notes">{{notes}}</textarea><br>
+		<label for="freeze">Freeze Date</label>
+		<input type="date" id="freeze" name="freeze" value="{{freeze}}"><br>
 		<input type="submit">
 	</form>
 	<div id="sidebar">
