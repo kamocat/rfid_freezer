@@ -32,16 +32,26 @@ def today():
     return date.today().strftime("%Y-%m-%d")
 
 @app.get("/add", response_class=HTMLResponse)
-async def get_add(request: Request):
+async def get_add(request: Request, 
+                 name: str = "",
+                 qty: int = 1,
+                 lbs: Union[float,None] = None,
+                 fr1: bool = False,
+                 fr2: bool = False,
+                 fr3: bool = False,
+                 tag: Union[int,None] = None,
+                 notes: str = "Add notes here...",
+                 freeze: date = today(),
+                 ):
     return templates.TemplateResponse("add.html", 
         {"request": request, 
-         "qty": 1,
-         "notes": "Add notes here...",
-         "freeze": today(),
+         "name": name,
+         "qty": qty,
+         "lbs": lbs,
+         "fr1": fr1,
+         "fr2": fr2,
+         "fr3": fr3,
+         "notes": notes,
+         "freeze": freeze,
         })
-
-@app.post("/add")
-async def post_add(item: Food):
-    return item
-    return templates.TemplateResponse("add.html", item)
 

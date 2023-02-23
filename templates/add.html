@@ -35,7 +35,7 @@ h3{
 </style>
 </head>
 <body>
-	<form method="post">
+	<form method="get">
 		<h3>Info for One Portion</h3>
 		<p>Portions are individually tagged. Multi-portion packages will have a tag for each portion.</p>
 		<label for="name">Item</label>
@@ -43,7 +43,7 @@ h3{
 		<label for="qty">Portion Size</label>
 		<input type="number" id="qty" name="qty" value={{qty}}><br>
 		<label for="lbs">Portion Weight (lbs)</label>
-		<input type="number" id="lbs" name="lbs" value={{lbs}}><br>
+		<input type="number" step=0.01 id="lbs" name="lbs" value={{lbs}}><br>
 		<label for="fr1">Chest Freezer</label>
 		<input type="radio" id="fr1" name="freezer" required value={{fr1}}><br>
 		<label for="fr2">Vertical Freezer</label>
