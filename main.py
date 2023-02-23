@@ -43,11 +43,14 @@ async def get_add(request: Request,
                  lbs: float = 0,
                  freezer: str = "fr1",
                  tag: Union[int,None] = None,
-                 notes: str = "Add notes here...",
+                 notes: str = "",
                  freeze: Union[str,None] = None,
                  ):
     newname = ' '.join([w.title() for w in name.split()])
     freeze = nofuture(freeze)
+    default_notes = "Add notes here..."
+    if notes.startswith(default_notes): #Remove default notes
+        notes = notes[len(default_notes):]
     form = {"request": request, 
          "name": newname,
          "qty": qty,
@@ -65,5 +68,7 @@ async def get_add(request: Request,
         else:
             form["error"] = "Duplicate tag already in freezer. Please use another tag."
     form[freezer] = "selected"
+    if notes is "": #Add default notes if missing
+        form["notes"]=default_notes
     return templates.TemplateResponse("add.html", form)
 
