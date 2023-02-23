@@ -7,11 +7,12 @@ from typing import Union
 from datetime import datetime
 import sqlite3
 con = sqlite3.connect("food.db")
+con.row_factory = sqlite3.Row # Access values by name
 cur = con.cursor()
 cur.execute("CREATE TABLE IF NOT EXISTS freezerfood(name TEXT, qty INTEGER, lbs REAL, loc TEXT, tag INTEGER, notes TEXT, freeze TEXT, thaw TEXT);")
 
 def fetch_entry(tag: int):
-    cur.execute("SELECT * FROM freezerfood WHERE thaw IS NULL and tag=?",[tag])
+    cur.execute("SELECT * FROM freezerfood WHERE thaw IS NULL and tag=? LIMIT 1",[tag])
     return cur.fetchone()
 
 app = FastAPI()
@@ -22,7 +23,7 @@ templates = Jinja2Templates(directory="templates")
 
 df = "%Y-%m-%d"
 def today():
-    return date.today().strftime("%Y-%m-%d")
+    return datetime.now().strftime("%Y-%m-%d")
 
 # Prevents from using future dates
 def nofuture(datestring: Union[str,None]):
@@ -34,6 +35,17 @@ def nofuture(datestring: Union[str,None]):
         if datenum > t:
             datenum = t
     return datenum.strftime(df)
+
+default_notes = "Add notes here..."
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    return templates.TemplateResponse("add.html", 
+                                      {"request": request,
+                                       "freeze":today(), 
+                                       "qty":1, 
+                                       "lbs":0,
+                                       "notes":default_notes,
+                                       })
 
 
 @app.get("/add", response_class=HTMLResponse)
@@ -48,7 +60,6 @@ async def get_add(request: Request,
                  ):
     newname = ' '.join([w.title() for w in name.split()])
     freeze = nofuture(freeze)
-    default_notes = "Add notes here..."
     if notes.startswith(default_notes): #Remove default notes
         notes = notes[len(default_notes):]
     form = {"request": request, 
@@ -68,7 +79,23 @@ async def get_add(request: Request,
         else:
             form["error"] = "Duplicate tag already in freezer. Please use another tag."
     form[freezer] = "selected"
-    if notes is "": #Add default notes if missing
+    if notes == "": #Add default notes if missing
         form["notes"]=default_notes
     return templates.TemplateResponse("add.html", form)
+
+
+@app.get("/view", response_class=HTMLResponse)
+async def get_existing(request: Request,
+                       tag: Union[int,None] = None):
+    data = {"request": request}
+    cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
+    a = fetch_entry(tag)
+    if a is None:
+        data["error"] = "This tag is currently not in use"
+    else:
+        data.update(dict(a))
+        if data["thaw"] is not None:
+            data["error"] = "This item has already been used"
+    return templates.TemplateResponse("view.html", data)
+
 

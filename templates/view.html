@@ -1,0 +1,68 @@
+<html><head>
+<style>
+form{
+	border: 1px solid black;
+	padding: 1em;
+	margin: 1em;
+	display: inline-block;
+	text-align: right;
+}
+#notes{
+	height: 5em;
+	width: 300px;
+	margin: 5px;
+}
+input,select{
+	width: 300px;
+	padding: 5px;
+	margin: 5px;
+}
+#fr1,#fr2,#fr3{
+	width: 20px;
+	margin-right: 280px;
+}
+label{
+	vertical-align: middle;
+	display: inline-block;
+}
+h3,p{
+	text-align: center;
+}
+#sidebar{
+	float: left;
+	width: 400px;
+}
+#error{
+	color:red;
+}
+table{
+	border-collapse: collapse;
+}
+td{
+	border: solid 1px black;
+	padding: 0.5em;
+}
+</style>
+</head>
+<body>
+	<form method="get" action="/view">
+		<h3 id="error">{{error}}</h3>
+		<h3>Please scan a tag</h3>
+		<label for="tag">RFID Tag</label>
+		<input type="number" id="tag" name="tag" required><br>
+		<input type="submit">
+	</form>
+	<table>
+		<tr><td>Name</td>		<td>{{name}}</td></tr>
+		<tr><td>Portion Size</td>	<td>{{qty}}</td></tr>
+		<tr><td>Portion Weight (lbs)</td><td>{{lbs}}</td></tr>
+		<tr><td>Location</td>		<td>{{loc}}</td></tr>
+		<tr><td>RFID Tag</td>		<td>{{tag}}</td></tr>
+		<tr><td>Freeze Date</td>	<td>{{freeze}}</td></tr>
+		<tr><td>Thaw Date</td>		<td>{{thaw}}</td></tr>
+		<tr><td>Notes</td>		<td>{{notes}}</td></tr>
+	</table>
+<script>
+	document.getElementById("tag").focus();
+</script>
+</body></html>
