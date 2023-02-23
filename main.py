@@ -38,9 +38,10 @@ async def get_add(request: Request,
                  notes: str = "Add notes here...",
                  freeze: Union[str,None] = None,
                  ):
+    newname = ' '.join([w.title() for w in name.split()])
     freeze = nofuture(freeze)
     form = {"request": request, 
-         "name": name,
+         "name": newname,
          "qty": qty,
          "lbs": lbs,
          "freezer": freezer,

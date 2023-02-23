@@ -43,7 +43,7 @@ h3{
 		<h3 id="error">{{error}}</h3>
 		<p>Portions are individually tagged. Multi-portion packages will have a tag for each portion.</p>
 		<label for="name">Item</label>
-		<input type="text" id="name" name="name" required value={{name}}><br>
+		<input type="text" id="name" name="name" required value="{{name}}"><br>
 		<label for="qty">Portion Size</label>
 		<input type="number" id="qty" name="qty" value={{qty}}><br>
 		<label for="lbs">Portion Weight (lbs)</label>
@@ -64,7 +64,6 @@ h3{
 	<div id="sidebar">
 	<ul>To Do:
 		<li>Reject Duplicate tags</li>
-		<li>Standardize capitalization on item text</li>
 		<li>Remove default notes</li>
 	</ul>
 	<ul>Implemented:
@@ -72,6 +71,7 @@ h3{
 		<li>Date is in the future - fix and make it today's date</li>
 		<li>Thaw date will be empty until item is removed</li>
 		<li>Pre-fill data with last submission to allow multiple tags to be scanned in a row</li>
+		<li>Standardize capitalization on item text</li>
 	</ul>
 	</div>
 <script>
