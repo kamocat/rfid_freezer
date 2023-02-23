@@ -44,12 +44,11 @@ h3{
 		<input type="number" id="qty" name="qty" value={{qty}}><br>
 		<label for="lbs">Portion Weight (lbs)</label>
 		<input type="number" step=0.01 id="lbs" name="lbs" value={{lbs}}><br>
-		<label for="fr1">Chest Freezer</label>
-		<input type="radio" id="fr1" name="freezer" required value={{fr1}}><br>
-		<label for="fr2">Vertical Freezer</label>
-		<input type="radio" id="fr2" name="freezer" required value={{fr2}}><br>
-		<label for="fr3">Kitchen Freezer</label>
-		<input type="radio" id="fr3" name="freezer" required value={{fr3}}><br>
+		<select id="freezer" name="freezer" value="{{freezer}}">
+			<option value="fr1" {{fr1}}>Chest Freezer</option>
+			<option value="fr2" {{fr2}}>Vertical Freezer</option>
+			<option value="fr3" {{fr3}}>Kitchen Freezer</option>
+		</select><br>
 		<label for="tag">RFID Tag</label>
 		<input type="number" id="tag" name="tag" required><br>
 		<textarea id="notes" name="notes">{{notes}}</textarea><br>
@@ -60,8 +59,7 @@ h3{
 	<div id="sidebar">
 	<ul>Errors
 		<li>Duplicate tag</li>
-		<li>Date is in the future</li>
-
+		<li>Date is in the future - fix and make it today's date</li>
 	</ul>
 	<ul>Data Validation
 		<li>Pre-fill default date with today</li>
@@ -71,7 +69,7 @@ h3{
 		<li>Pre-fill data with last submission to allow multiple tags to be scanned in a row</li>
 	</ul>
 	</div>
-
-
-
+<script>
+	document.getElementById("tag").focus();
+</script>
 </body></html>

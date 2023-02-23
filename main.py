@@ -35,23 +35,20 @@ def today():
 async def get_add(request: Request, 
                  name: str = "",
                  qty: int = 1,
-                 lbs: Union[float,None] = None,
-                 fr1: bool = False,
-                 fr2: bool = False,
-                 fr3: bool = False,
+                 lbs: float = 0,
+                 freezer: Union[str,None]= None,
                  tag: Union[int,None] = None,
                  notes: str = "Add notes here...",
                  freeze: date = today(),
                  ):
-    return templates.TemplateResponse("add.html", 
-        {"request": request, 
+    form = {"request": request, 
          "name": name,
          "qty": qty,
          "lbs": lbs,
-         "fr1": fr1,
-         "fr2": fr2,
-         "fr3": fr3,
+         "freezer": freezer,
          "notes": notes,
          "freeze": freeze,
-        })
+        }
+    form[freezer] = "selected"
+    return templates.TemplateResponse("add.html", form)
 
