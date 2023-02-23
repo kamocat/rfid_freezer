@@ -9,7 +9,7 @@ import sqlite3
 con = sqlite3.connect("food.db")
 con.row_factory = sqlite3.Row # Access values by name
 cur = con.cursor()
-cur.execute("CREATE TABLE IF NOT EXISTS freezerfood(name TEXT, qty INTEGER, lbs REAL, loc TEXT, tag INTEGER, notes TEXT, freeze TEXT, thaw TEXT);")
+cur.execute("CREATE TABLE IF NOT EXISTS freezerfood(rowid INTEGER PRIMARY KEY, name TEXT, qty INTEGER, lbs REAL, loc TEXT, tag INTEGER, notes TEXT, freeze TEXT, thaw TEXT);")
 
 def fetch_entry(tag: int):
     cur.execute("SELECT * FROM freezerfood WHERE thaw IS NULL and tag=? LIMIT 1",[tag])
@@ -70,11 +70,10 @@ async def get_add(request: Request,
          "tag": tag,
          "notes": notes,
          "freeze": freeze,
-         "thaw": None,
         }
     if tag is not None:
         if fetch_entry(tag) is None:
-            cur.execute("INSERT INTO freezerfood VALUES(:name, :qty, :lbs, :loc,:tag, :notes, :freeze, :thaw)", form)
+            cur.execute("INSERT INTO freezerfood (name, qty, lbs, loc, tag, notes, freeze) VALUES(:name, :qty, :lbs, :loc,:tag, :notes, :freeze)", form)
             con.commit()
         else:
             form["error"] = "Duplicate tag already in freezer. Please use another tag."
@@ -86,7 +85,8 @@ async def get_add(request: Request,
 
 @app.get("/view", response_class=HTMLResponse)
 async def get_existing(request: Request,
-                       tag: Union[int,None] = None):
+                       tag: Union[int,None] = None,
+                       thaw_now: bool = False,):
     data = {"request": request}
     cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
     a = fetch_entry(tag)
@@ -96,6 +96,15 @@ async def get_existing(request: Request,
         data.update(dict(a))
         if data["thaw"] is not None:
             data["error"] = "This item has already been used"
+        elif thaw_now:
+            t = today()
+            data["thaw"] = t
+            cur.execute("UPDATE freezerfood set thaw = :thaw where rowid = :rowid;", data)
+            cur.commit()
     return templates.TemplateResponse("view.html", data)
 
+@app.get("/thaw", response_class=HTMLResponse)
+async def thatme(request: Request,
+                 tag: Union[int,None] = None,):
+    return get_existing(request=request, tag=tag, thaw_now=True)
 
