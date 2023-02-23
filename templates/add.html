@@ -32,11 +32,15 @@ h3{
 	float: left;
 	width: 400px;
 }
+#error{
+	color:red;
+}
 </style>
 </head>
 <body>
 	<form method="get">
 		<h3>Info for One Portion</h3>
+		<h3 id="error">{{error}}</h3>
 		<p>Portions are individually tagged. Multi-portion packages will have a tag for each portion.</p>
 		<label for="name">Item</label>
 		<input type="text" id="name" name="name" required value={{name}}><br>
@@ -58,14 +62,14 @@ h3{
 		<input type="submit">
 	</form>
 	<div id="sidebar">
-	<ul>Errors
-		<li>Duplicate tag</li>
-		<li>Date is in the future - fix and make it today's date</li>
-	</ul>
-	<ul>Data Validation
-		<li>Pre-fill default date with today</li>
+	<ul>To Do:
+		<li>Reject Duplicate tags</li>
 		<li>Standardize capitalization on item text</li>
 		<li>Remove default notes</li>
+	</ul>
+	<ul>Implemented:
+		<li>Pre-fill default date with today</li>
+		<li>Date is in the future - fix and make it today's date</li>
 		<li>Thaw date will be empty until item is removed</li>
 		<li>Pre-fill data with last submission to allow multiple tags to be scanned in a row</li>
 	</ul>

@@ -4,43 +4,41 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Union
-from datetime import date
-
-class Food(BaseModel):
-    name: str
-    qty: int
-    lbs: Union[float,None] = None
-    fr1: bool
-    fr2: bool
-    fr3: bool
-    tag: int
-    notes: Union[str,None] = None
-    freeze: date
-    thaw: Union[date,None] = None
-
-
-
+from datetime import datetime
 
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
 
 templates = Jinja2Templates(directory="templates")
 
 def today():
     return date.today().strftime("%Y-%m-%d")
 
+# Prevents from using future dates
+def nofuture(datestring: Union[str,None]):
+    df = "%Y-%m-%d"
+    t = datetime.now()
+    if datestring is None:
+        datenum = t
+    else:
+        datenum = datetime.strptime(datestring, df)
+        if datenum > t:
+            datenum = t
+    return datenum.strftime(df)
+
+
 @app.get("/add", response_class=HTMLResponse)
 async def get_add(request: Request, 
                  name: str = "",
                  qty: int = 1,
                  lbs: float = 0,
-                 freezer: Union[str,None]= None,
+                 freezer: str = "fr1",
                  tag: Union[int,None] = None,
                  notes: str = "Add notes here...",
-                 freeze: date = today(),
+                 freeze: Union[str,None] = None,
                  ):
+    freeze = nofuture(freeze)
     form = {"request": request, 
          "name": name,
          "qty": qty,
