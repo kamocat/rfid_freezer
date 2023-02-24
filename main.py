@@ -89,7 +89,7 @@ async def get_existing(request: Request,
                        thaw_now: bool = False,):
     data = {"request": request}
     cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
-    a = fetch_entry(tag)
+    a = cur.fetchone()
     if a is None:
         data["error"] = "This tag is currently not in use"
     else:
@@ -97,14 +97,15 @@ async def get_existing(request: Request,
         if data["thaw"] is not None:
             data["error"] = "This item has already been used"
         elif thaw_now:
+            print(data)
             t = today()
             data["thaw"] = t
-            cur.execute("UPDATE freezerfood set thaw = :thaw where rowid = :rowid;", data)
-            cur.commit()
+            cur.execute("UPDATE freezerfood set thaw = :thaw where tag = :tag and thaw is NULL;", data)
+            con.commit()
     return templates.TemplateResponse("view.html", data)
 
 @app.get("/thaw", response_class=HTMLResponse)
 async def thatme(request: Request,
                  tag: Union[int,None] = None,):
-    return get_existing(request=request, tag=tag, thaw_now=True)
+    return await get_existing(request=request, tag=tag, thaw_now=True)
 
