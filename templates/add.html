@@ -17,6 +17,12 @@ input,select{
 	padding: 5px;
 	margin: 5px;
 }
+#lbs,#oz{
+	width: 100px;
+}
+#lbs{
+	margin: 5px 60px 5px 5px;
+}
 #fr1,#fr2,#fr3{
 	width: 20px;
 	margin-right: 280px;
@@ -47,7 +53,9 @@ h3,p{
 		<label for="qty">Portion Size</label>
 		<input type="number" id="qty" name="qty" value={{qty}}><br>
 		<label for="lbs">Portion Weight (lbs)</label>
-		<input type="number" step=0.01 id="lbs" name="lbs" value={{lbs}}><br>
+		<input type="number" step=0.01 id="lbs" name="lbs" value={{lbs}}>
+		<label for="oz">(oz)</label>
+		<input type="number" step=0.1 id="oz" name="oz" value={{oz}}><br>
 		<label for="freezer">Location</label>
 		<select id="freezer" name="freezer" value="{{freezer}}">
 			<option value="fr1" {{fr1}}>Chest Freezer</option>
