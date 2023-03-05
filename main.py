@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import *
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Union
 from datetime import datetime
 import sqlite3
+import io
+import csv
 con = sqlite3.connect("food.db")
 con.row_factory = sqlite3.Row # Access values by name
 cur = con.cursor()
@@ -83,7 +85,6 @@ async def get_add(request: Request,
         form["notes"]=default_notes
     return templates.TemplateResponse("add.html", form)
 
-
 @app.get("/view", response_class=HTMLResponse)
 async def get_existing(request: Request,
                        tag: Union[int,None] = None,
@@ -110,3 +111,18 @@ async def thatme(request: Request,
                  tag: Union[int,None] = None,):
     return await get_existing(request=request, tag=tag, thaw_now=True)
 
+
+def csvrow(arr):
+    return '"'+'","'.join(arr)+'"\r\n'
+
+@app.get("/freezerfood.csv", response_class=StreamingResponse)
+async def export(request: Request):
+    response = io.StringIO()
+    cur.execute("SELECT * from freezerfood")
+    arr = cur.fetchall()
+    rows = map(lambda row: map(lambda x: row[x], row.keys()), arr)
+    mycsv = csv.writer(response)
+    mycsv.writerow(arr[0].keys())
+    mycsv.writerows(rows)
+    response.seek(0)
+    return StreamingResponse(response, media_type="text/csv", )
