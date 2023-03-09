@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<link rel ='stylesheet' href="/static/style.css">
+{% block head %}
+<title>Freezer Food</title>
+{% endblock %}
+</head>
+<body>
+	<<h1>{{title}}</h1>
+	<ul id="navigation">
+		{% for item in navigation %}
+		<li><a href="{{item.href}}">{{item.caption}}</a></li>
+		{% endfor %}
+	</ul>
+	{% block content %}{% endblock %}
+</body></html>

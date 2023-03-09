@@ -43,11 +43,11 @@ default_notes = "Add notes here..."
 async def root(request: Request):
     return templates.TemplateResponse("add.html", 
                                       {"request": request,
+                                       "form":{
                                        "freeze":today(), 
                                        "qty":1, 
-                                       "lbs":0,
                                        "notes":default_notes,
-                                       })
+                                       }})
 
 
 @app.get("/add", response_class=HTMLResponse)
@@ -65,7 +65,7 @@ async def get_add(request: Request,
     freeze = nofuture(freeze)
     if notes.startswith(default_notes): #Remove default notes
         notes = notes[len(default_notes):]
-    form = {"request": request, 
+    form = {
          "name": newname,
          "qty": qty,
          "lbs": lbs + oz/16,
@@ -83,13 +83,13 @@ async def get_add(request: Request,
     form[freezer] = "selected"
     if notes == "": #Add default notes if missing
         form["notes"]=default_notes
-    return templates.TemplateResponse("add.html", form)
+    return templates.TemplateResponse("add.html", {"request": request, "form":form})
 
 @app.get("/view", response_class=HTMLResponse)
 async def get_existing(request: Request,
                        tag: Union[int,None] = None,
                        thaw_now: bool = False,):
-    data = {"request": request}
+    data = {}
     cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
     a = cur.fetchone()
     if a is None:
@@ -104,7 +104,7 @@ async def get_existing(request: Request,
             data["thaw"] = t
             cur.execute("UPDATE freezerfood set thaw = :thaw where tag = :tag and thaw is NULL;", data)
             con.commit()
-    return templates.TemplateResponse("view.html", data)
+    return templates.TemplateResponse("view.html", {"request":request,"form":data})
 
 @app.get("/thaw", response_class=HTMLResponse)
 async def thatme(request: Request,

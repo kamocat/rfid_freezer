@@ -1,74 +1,9 @@
-<html><head>
-<style>
-form{
-	border: 1px solid black;
-	padding: 1em;
-	margin: 1em;
-	display: inline-block;
-	text-align: right;
-}
-#notes{
-	height: 5em;
-	width: 300px;
-	margin: 5px;
-}
-input,select{
-	width: 300px;
-	padding: 5px;
-	margin: 5px;
-}
-#lbs,#oz{
-	width: 100px;
-}
-#lbs{
-	margin: 5px 60px 5px 5px;
-}
-#fr1,#fr2,#fr3{
-	width: 20px;
-	margin-right: 280px;
-}
-label{
-	vertical-align: middle;
-	display: inline-block;
-}
-h3,p{
-	text-align: center;
-}
-#sidebar{
-	float: left;
-	width: 400px;
-}
-#error{
-	color:red;
-}
-</style>
-</head>
-<body>
-	<form method="get" action="/add">
-		<h3>Info for One Portion</h3>
-		<h3 id="error">{{error}}</h3>
-		<p>Portions are individually tagged. Multi-portion packages will have a tag for each portion.</p>
-		<label for="name">Item</label>
-		<input type="text" id="name" name="name" required value="{{name}}"><br>
-		<label for="qty">Portion Size</label>
-		<input type="number" id="qty" name="qty" value={{qty}}><br>
-		<label for="lbs">Portion Weight (lbs)</label>
-		<input type="number" step=0.01 id="lbs" name="lbs" value={{lbs}}>
-		<label for="oz">(oz)</label>
-		<input type="number" step=0.1 id="oz" name="oz" value={{oz}}><br>
-		<label for="freezer">Location</label>
-		<select id="freezer" name="freezer" value="{{freezer}}">
-			<option value="fr1" {{fr1}}>Chest Freezer</option>
-			<option value="fr2" {{fr2}}>Vertical Freezer</option>
-			<option value="fr3" {{fr3}}>Kitchen Freezer</option>
-		</select><br>
-		<label for="tag">RFID Tag</label>
-		<input type="number" id="tag" name="tag" required><br>
-		<textarea id="notes" name="notes">{{notes}}</textarea><br>
-		<label for="freeze">Freeze Date</label>
-		<input type="date" id="freeze" name="freeze" value="{{freeze}}"><br>
-		<input type="submit">
-	</form>
+{% extends "base.html" %}
+{%block head %}
+<title>Add food to freezer</title>
+{% endblock %}
+{% block content %}
+{% include 'item.html' %}
 	<div id="sidebar">
 		<ul><b>Implemented:</b>
 		<li>Pre-fill default date with today</li>
@@ -81,6 +16,6 @@ h3,p{
 	</ul>
 	</div>
 <script>
-	document.getElementById("tag").focus();
+	document.getElementById("lbs").focus();
 </script>
-</body></html>
+{% endblock %}

@@ -1,0 +1,25 @@
+<form class="item" method="get" action="/add">
+<h3>Info for One Portion</h3>
+<h3 id="error">{{form.error}}</h3>
+<p>Portions are individually tagged. Multi-portion packages will have a tag for each portion.</p>
+<label for="name">Item</label>
+<input type="text" id="name" name="name" required value="{{form.name}}"><br>
+<label for="qty">Portion Size</label>
+<input type="number" id="qty" name="qty" value={{form.qty}}><br>
+<label for="lbs">Portion Weight (lbs)</label>
+<input type="number" step=0.01 id="lbs" name="lbs" value=0>
+<label for="oz">(oz)</label>
+<input type="number" step=0.1 id="oz" name="oz" value=0><br>
+<label for="tag">RFID Tag</label>
+<input type="number" id="tag" name="tag" required><br>
+<label for="freezer">Location</label>
+<select id="freezer" name="freezer" value="{{form.freezer}}">
+	<option class="fr" value="fr1" {{form.fr1}}>Chest Freezer</option>
+	<option class="fr" value="fr2" {{form.fr2}}>Vertical Freezer</option>
+	<option class="fr" value="fr3" {{form.fr3}}>Kitchen Freezer</option>
+</select><br>
+<textarea id="notes" name="notes">{{form.notes}}</textarea><br>
+<label for="freeze">Freeze Date</label>
+<input type="date" id="freeze" name="freeze" value="{{form.freeze}}"><br>
+<input type="submit" value="Save">
+</form>

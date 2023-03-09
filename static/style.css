@@ -1,0 +1,42 @@
+form{
+	border: 1px solid black;
+	padding: 1em;
+	margin: 1em;
+	display: inline-block;
+	text-align: right;
+}
+.item #notes{
+	height: 5em;
+	width: 300px;
+	margin: 5px;
+}
+input,select{
+	width: 300px;
+	padding: 5px;
+	margin: 5px;
+}
+.item #oz{
+	width: 100px;
+}
+.item #lbs{
+	width: 100px;
+	margin: 5px 60px 5px 5px;
+}
+.item .fr{
+	width: 20px;
+	margin-right: 280px;
+}
+label{
+	vertical-align: middle;
+	display: inline-block;
+}
+.item h3,p{
+	text-align: center;
+}
+#sidebar{
+	float: left;
+	width: 400px;
+}
+.item #error{
+	color:red;
+}
