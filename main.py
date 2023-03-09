@@ -13,15 +13,17 @@ con.row_factory = sqlite3.Row # Access values by name
 cur = con.cursor()
 cur.execute("CREATE TABLE IF NOT EXISTS freezerfood(rowid INTEGER PRIMARY KEY, name TEXT, qty INTEGER, lbs REAL, loc TEXT, tag INTEGER, notes TEXT, freeze TEXT, thaw TEXT);")
 
-def fetch_entry(tag: int):
-    cur.execute("SELECT * FROM freezerfood WHERE thaw IS NULL and tag=? LIMIT 1",[tag])
-    return cur.fetchone()
-
 app = FastAPI()
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
 templates = Jinja2Templates(directory="templates")
+
+navigation = [
+        {"caption":"Add an item", "href":"/add"},
+        {"caption":"View items", "href":"/view"},
+        {"caption":"Thaw an item", "href":"/thaw"},
+        {"caption":"Download spreadhseet", "href":"/freezerfood.csv"},
+]
+
 
 df = "%Y-%m-%d"
 def today():
@@ -75,7 +77,8 @@ async def get_add(request: Request,
          "freeze": freeze,
         }
     if tag is not None:
-        if fetch_entry(tag) is None:
+        cur.execute("SELECT * FROM freezerfood WHERE thaw IS NULL and tag=? LIMIT 1",[tag])
+        if cur.fetchone() is None:
             cur.execute("INSERT INTO freezerfood (name, qty, lbs, loc, tag, notes, freeze) VALUES(:name, :qty, :lbs, :loc,:tag, :notes, :freeze)", form)
             con.commit()
         else:
@@ -83,7 +86,7 @@ async def get_add(request: Request,
     form[freezer] = "selected"
     if notes == "": #Add default notes if missing
         form["notes"]=default_notes
-    return templates.TemplateResponse("add.html", {"request": request, "form":form})
+    return templates.TemplateResponse("add.html", {"request": request, "title":"Add Food to the Freezer", "navigation":navigation,"form":form})
 
 @app.get("/view", response_class=HTMLResponse)
 async def get_existing(request: Request,
@@ -92,24 +95,25 @@ async def get_existing(request: Request,
     data = {}
     cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
     a = cur.fetchone()
-    if a is None:
-        data["error"] = "This tag is currently not in use"
-    else:
-        data.update(dict(a))
-        if data["thaw"] is not None:
-            data["error"] = "This item has already been used"
-        elif thaw_now:
-            print(data)
-            t = today()
-            data["thaw"] = t
-            cur.execute("UPDATE freezerfood set thaw = :thaw where tag = :tag and thaw is NULL;", data)
-            con.commit()
-    return templates.TemplateResponse("view.html", {"request":request,"form":data})
+    data.update(dict(a))
+    return templates.TemplateResponse("view.html", {"request":request,"title":"View Frozen Item", "navigation":navigation,"form":data})
 
 @app.get("/thaw", response_class=HTMLResponse)
 async def thatme(request: Request,
                  tag: Union[int,None] = None,):
-    return await get_existing(request=request, tag=tag, thaw_now=True)
+    data = {}
+    cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
+    a = cur.fetchone()
+    if a is None:
+        data["error"] = "This tag is currently not in use"
+    else:
+        data.update(dict(a))
+        print(data)
+        t = today()
+        data["thaw"] = t
+        cur.execute("UPDATE freezerfood set thaw = :thaw where tag = :tag and thaw is NULL;", data)
+        con.commit()
+    return templates.TemplateResponse("view.html", {"request":request,"title":"Thaw an Item", "navigation":navigation,"form":data})
 
 
 def csvrow(arr):
