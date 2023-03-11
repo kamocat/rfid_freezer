@@ -42,22 +42,12 @@ def nofuture(datestring: Union[str,None]):
 
 default_notes = "Add notes here..."
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    return templates.TemplateResponse("add.html", 
-                                      {"request": request,
-                                       "form":{
-                                       "freeze":today(), 
-                                       "qty":1, 
-                                       "notes":default_notes,
-                                       }})
-
-
 @app.get("/add", response_class=HTMLResponse)
 async def get_add(request: Request, 
                  name: str = "",
                  qty: int = 1,
-                 lbs: float = 0,
-                 oz: float = 0,
+                 lbs: str = "0",
+                 oz: str = "0",
                  freezer: str = "fr1",
                  tag: Union[int,None] = None,
                  notes: str = "",
@@ -65,12 +55,21 @@ async def get_add(request: Request,
                  ):
     newname = ' '.join([w.title() for w in name.split()])
     freeze = nofuture(freeze)
+    weight = 0
+    try: 
+        weight = float(lbs)
+    except:
+        pass
+    try: 
+        weight += float(oz)/16
+    except:
+        pass
     if notes.startswith(default_notes): #Remove default notes
         notes = notes[len(default_notes):]
     form = {
          "name": newname,
          "qty": qty,
-         "lbs": lbs + oz/16,
+         "lbs": weight,
          "loc": freezer,
          "tag": tag,
          "notes": notes,
@@ -86,6 +85,9 @@ async def get_add(request: Request,
     form[freezer] = "selected"
     if notes == "": #Add default notes if missing
         form["notes"]=default_notes
+    #Clear data that should be unique for each entry
+    form["tag"] = None
+    form["lbs"] = None
     return templates.TemplateResponse("add.html", {"request": request, "title":"Add Food to the Freezer", "navigation":navigation,"form":form})
 
 @app.get("/view", response_class=HTMLResponse)
@@ -93,9 +95,13 @@ async def get_existing(request: Request,
                        tag: Union[int,None] = None,
                        thaw_now: bool = False,):
     data = {}
-    cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
-    a = cur.fetchone()
-    data.update(dict(a))
+    if tag is not None:
+        cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
+        a = cur.fetchone()
+        if a is None:
+            data["error"] = "This tag is currently not in use"
+        else:
+            data.update(dict(a))
     return templates.TemplateResponse("view.html", {"request":request,"title":"View Frozen Item", "navigation":navigation,"form":data})
 
 @app.get("/thaw", response_class=HTMLResponse)
