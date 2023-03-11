@@ -51,14 +51,14 @@ async def root(request: Request):
 
 @app.post("/", response_class=HTMLResponse)
 async def post_add(request: Request, 
-                 name: str = Form(),
-                 qty: int = Form(),
+                 name: str = Form(""),
+                 qty: int = Form(1),
                  lbs: Optional[float] = Form(0),
                  oz: Optional[float] = Form(0),
-                 freezer: str = Form(),
-                 tag: int = Form(),
-                 notes: str = Form(),
-                 freeze: str = Form(),
+                 freezer: str = Form("fr1"),
+                 tag: int = Form(0),
+                 notes: str = Form(""),
+                 freeze: str = Form(today()),
                  ):
     newname = ' '.join([w.title() for w in name.split()])
     freeze = nofuture(freeze)
@@ -100,7 +100,7 @@ async def get_existing(request: Request,
             data["error"] = "This tag is currently not in use"
         else:
             data.update(dict(a))
-    data[data["loc"]] = "selected"
+            data[data["loc"]] = "selected"
     return templates.TemplateResponse("view.html", {"request":request,"title":"View Frozen Item", "navigation":navigation,"form":data})
 
 @app.get("/thaw", response_class=HTMLResponse)
@@ -122,14 +122,14 @@ async def thatme(request: Request,
 @app.post("/view", response_class=HTMLResponse)
 @app.post("/thaw", response_class=HTMLResponse)
 async def modify_entry(request: Request, 
-                 name: str = Form(),
-                 qty: int = Form(),
+                 name: str = Form(""),
+                 qty: int = Form(1),
                  lbs: Optional[float] = Form(0),
                  oz: Optional[float] = Form(0),
-                 freezer: str = Form(),
-                 tag: int = Form(),
+                 freezer: str = Form("fr1"),
+                 tag: int = Form(0),
                  notes: Optional[str] = Form(""),
-                 freeze: str = Form(),
+                 freeze: str = Form(today()),
                  thaw: Optional[str] = Form(None),
                  ):
     newname = ' '.join([w.title() for w in name.split()])
