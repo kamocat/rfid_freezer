@@ -50,7 +50,7 @@ async def root(request: Request):
     return templates.TemplateResponse("add.html", {"request": request, "title":"Add Food to the Freezer", "navigation":navigation,"form":form, "focus":"name"})
 
 @app.post("/", response_class=HTMLResponse)
-async def get_add(request: Request, 
+async def post_add(request: Request, 
                  name: str = Form(),
                  qty: int = Form(),
                  lbs: Optional[float] = Form(0),
@@ -91,7 +91,7 @@ async def get_add(request: Request,
 @app.get("/view", response_class=HTMLResponse)
 async def get_existing(request: Request,
                        tag: Union[int,None] = None,
-                       thaw_now: bool = False,):
+                       ):
     data = {}
     if tag is not None:
         cur.execute("SELECT * FROM freezerfood WHERE tag=? order by rowid desc limit 1",[tag])
@@ -100,6 +100,7 @@ async def get_existing(request: Request,
             data["error"] = "This tag is currently not in use"
         else:
             data.update(dict(a))
+    data[data["loc"]] = "selected"
     return templates.TemplateResponse("view.html", {"request":request,"title":"View Frozen Item", "navigation":navigation,"form":data})
 
 @app.get("/thaw", response_class=HTMLResponse)
@@ -112,13 +113,43 @@ async def thatme(request: Request,
         data["error"] = "This tag is currently not in use"
     else:
         data.update(dict(a))
-        print(data)
-        t = today()
-        data["thaw"] = t
+        data["thaw"] = today()
         cur.execute("UPDATE freezerfood set thaw = :thaw where tag = :tag and thaw is NULL;", data)
         con.commit()
+    data[data["loc"]] = "selected"
     return templates.TemplateResponse("view.html", {"request":request,"title":"Thaw an Item", "navigation":navigation,"form":data})
 
+@app.post("/view", response_class=HTMLResponse)
+@app.post("/thaw", response_class=HTMLResponse)
+async def modify_entry(request: Request, 
+                 name: str = Form(),
+                 qty: int = Form(),
+                 lbs: Optional[float] = Form(0),
+                 oz: Optional[float] = Form(0),
+                 freezer: str = Form(),
+                 tag: int = Form(),
+                 notes: Optional[str] = Form(""),
+                 freeze: str = Form(),
+                 thaw: Optional[str] = Form(None),
+                 ):
+    newname = ' '.join([w.title() for w in name.split()])
+    weight = oz/16 + lbs
+    form = {
+         "name": newname,
+         "qty": qty,
+         "lbs": weight,
+         "loc": freezer,
+         "tag": tag,
+         "notes": notes,
+         "freeze": freeze,
+         "thaw": thaw,
+        }
+    cur.execute("SELECT rowid FROM freezerfood WHERE tag=? ORDER BY ROWID DESC LIMIT 1", [tag]);
+    form["rowid"] = cur.fetchone()["rowid"];
+    cur.execute("UPDATE freezerfood SET name=:name,qty=:qty,lbs=:lbs,loc=:loc,tag=:tag,notes=:notes,freeze=:freeze,thaw=:thaw WHERE rowid=:rowid", form)
+    con.commit()
+    form[freezer] = "selected"
+    return templates.TemplateResponse("view.html", {"request":request,"title":"Modify an Item", "navigation":navigation,"form":form})
 
 def csvrow(arr):
     return '"'+'","'.join(arr)+'"\r\n'
@@ -134,3 +165,4 @@ async def export(request: Request):
     mycsv.writerows(rows)
     response.seek(0)
     return StreamingResponse(response, media_type="text/csv", )
+
