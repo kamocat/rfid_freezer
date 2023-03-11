@@ -21,5 +21,9 @@
 <textarea id="notes" name="notes">{{form.notes}}</textarea><br>
 <label for="freeze">Freeze Date</label>
 <input type="date" id="freeze" name="freeze" value="{{form.freeze}}"><br>
+{% if form.thaw %}
+<label for="thaw">Thaw Date</label>
+<input type="date" id="thaw" name="thaw" value="{{form.thaw}}"><br>
+{% endif %}
 <input type="submit" value="Save">
 </form>
