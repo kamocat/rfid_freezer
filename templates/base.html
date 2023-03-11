@@ -13,4 +13,9 @@
 		{% endfor %}
 	</ul>
 	{% block content %}{% endblock %}
+{% if focus %}
+<script>
+	document.getElementById("{{focus}}").focus();
+</script>
+{% endif %}
 </body></html>

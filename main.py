@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import *
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import Union
+from typing import Union, Optional
 from datetime import datetime
 import sqlite3
 import io
@@ -18,7 +18,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 navigation = [
-        {"caption":"Add an item", "href":"/add"},
+        {"caption":"Add an item", "href":"/"},
         {"caption":"View items", "href":"/view"},
         {"caption":"Thaw an item", "href":"/thaw"},
         {"caption":"Download spreadhseet", "href":"/freezerfood.csv"},
@@ -42,28 +42,27 @@ def nofuture(datestring: Union[str,None]):
 
 default_notes = "Add notes here..."
 @app.get("/", response_class=HTMLResponse)
-@app.get("/add", response_class=HTMLResponse)
+async def root(request: Request):
+    form = {"notes":default_notes,
+            "freeze": today(),
+            "qty": 1,
+            }
+    return templates.TemplateResponse("add.html", {"request": request, "title":"Add Food to the Freezer", "navigation":navigation,"form":form, "focus":"name"})
+
+@app.post("/", response_class=HTMLResponse)
 async def get_add(request: Request, 
-                 name: str = "",
-                 qty: int = 1,
-                 lbs: str = "0",
-                 oz: str = "0",
-                 freezer: str = "fr1",
-                 tag: Union[int,None] = None,
-                 notes: str = "",
-                 freeze: Union[str,None] = None,
+                 name: str = Form(),
+                 qty: int = Form(),
+                 lbs: Optional[float] = Form(0),
+                 oz: Optional[float] = Form(0),
+                 freezer: str = Form(),
+                 tag: int = Form(),
+                 notes: str = Form(),
+                 freeze: str = Form(),
                  ):
     newname = ' '.join([w.title() for w in name.split()])
     freeze = nofuture(freeze)
-    weight = 0
-    try: 
-        weight = float(lbs)
-    except:
-        pass
-    try: 
-        weight += float(oz)/16
-    except:
-        pass
+    weight = oz/16 + lbs
     if notes.startswith(default_notes): #Remove default notes
         notes = notes[len(default_notes):]
     form = {
@@ -75,20 +74,19 @@ async def get_add(request: Request,
          "notes": notes,
          "freeze": freeze,
         }
-    if tag is not None:
-        cur.execute("SELECT * FROM freezerfood WHERE thaw IS NULL and tag=? LIMIT 1",[tag])
-        if cur.fetchone() is None:
-            cur.execute("INSERT INTO freezerfood (name, qty, lbs, loc, tag, notes, freeze) VALUES(:name, :qty, :lbs, :loc,:tag, :notes, :freeze)", form)
-            con.commit()
-        else:
-            form["error"] = "Duplicate tag already in freezer. Please use another tag."
+    cur.execute("SELECT * FROM freezerfood WHERE thaw IS NULL and tag=? LIMIT 1",[tag])
+    if cur.fetchone() is None:
+        cur.execute("INSERT INTO freezerfood (name, qty, lbs, loc, tag, notes, freeze) VALUES(:name, :qty, :lbs, :loc,:tag, :notes, :freeze)", form)
+        con.commit()
+    else:
+        form["error"] = "Duplicate tag already in freezer. Please use another tag."
     form[freezer] = "selected"
     if notes == "": #Add default notes if missing
         form["notes"]=default_notes
     #Clear data that should be unique for each entry
     form["tag"] = None
     form["lbs"] = None
-    return templates.TemplateResponse("add.html", {"request": request, "title":"Add Food to the Freezer", "navigation":navigation,"form":form})
+    return templates.TemplateResponse("add.html", {"request": request, "title":"Add Food to the Freezer", "navigation":navigation,"form":form, "focus":"lbs"})
 
 @app.get("/view", response_class=HTMLResponse)
 async def get_existing(request: Request,
