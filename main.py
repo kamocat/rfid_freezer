@@ -166,3 +166,16 @@ async def export(request: Request):
     response.seek(0)
     return StreamingResponse(response, media_type="text/csv", )
 
+@app.get("/search", response_class=JSONResponse)
+async def search(request: Request, key: str):
+    cur.execute("SELECT name,lbs FROM freezerfood WHERE thaw IS NULL ORDER BY name ASC");
+    key = key.lower()
+    items = filter(lambda x: key in x["name"].lower(), cur.fetchall())
+    from collections import defaultdict
+    weights = defaultdict(lambda: 0)
+    for i in items:
+        weights[i["name"]] += i["lbs"]
+    return weights
+
+
+
