@@ -3,7 +3,7 @@ from fastapi.responses import *
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import Union, Optional
+from typing import Union, Optional, List
 from datetime import datetime
 import sqlite3
 import io
@@ -177,5 +177,8 @@ async def search(request: Request, key: str):
         weights[i["name"]] += i["lbs"]
     return weights
 
-
-
+from linebot import Webhook
+@app.post("/webhook")
+async def post_webhook(hook: Webhook):
+    print(hook)
+    return {}
