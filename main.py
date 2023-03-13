@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, BackgroundTasks
 from fastapi.responses import *
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -8,6 +8,7 @@ from datetime import datetime
 import sqlite3
 import io
 import csv
+import requests
 con = sqlite3.connect("food.db")
 con.row_factory = sqlite3.Row # Access values by name
 cur = con.cursor()
@@ -166,8 +167,8 @@ async def export(request: Request):
     response.seek(0)
     return StreamingResponse(response, media_type="text/csv", )
 
-@app.get("/search", response_class=JSONResponse)
-async def search(request: Request, key: str):
+#@app.get("/search", response_class=PlainTextResponse)
+def search(key: str):
     cur.execute("SELECT name,lbs FROM freezerfood WHERE thaw IS NULL ORDER BY name ASC");
     key = key.lower()
     items = filter(lambda x: key in x["name"].lower(), cur.fetchall())
@@ -175,10 +176,26 @@ async def search(request: Request, key: str):
     weights = defaultdict(lambda: 0)
     for i in items:
         weights[i["name"]] += i["lbs"]
-    return weights
+    weight_str = '\n'.join([f'{key}: {val} lbs' for (key,val) in weights.items()])
+    return weight_str
+
+from secret import token_str
+
+def line_reply(token: str, msg:str):
+    url = "https://api.line.me/v2/bot/message/reply"
+    #url = "http://127.0.0.1:7000"
+    x = requests.post(url,
+        json={'replyToken':token, 'messages':{'type':'text','text':[msg]}},
+        headers={'Content-Type':'application/json','Authorization':token_str}
+    )
+    print(x.content)
+    
 
 from linebot import Webhook
 @app.post("/webhook")
-async def post_webhook(hook: Webhook):
-    print(hook)
+async def post_webhook(hook: Webhook, bg: BackgroundTasks):
+    for event in hook.events:
+        if event.message:
+            reply_msg = search(event.message.text)
+            bg.add_task(line_reply,event.replyToken,reply_msg)
     return {}
