@@ -185,7 +185,7 @@ def line_reply(token: str, msg:str):
     url = "https://api.line.me/v2/bot/message/reply"
     #url = "http://127.0.0.1:7000"
     x = requests.post(url,
-        json={'replyToken':token, 'messages':{'type':'text','text':[msg]}},
+        json={'replyToken':token, 'messages':[{'type':'text','text':msg}]},
         headers={'Content-Type':'application/json','Authorization':token_str}
     )
     print(x.content)
